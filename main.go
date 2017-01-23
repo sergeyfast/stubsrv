@@ -16,12 +16,12 @@ const appName = "stubsrv"
 var (
 	flVerbose    = flag.Bool("verbose", false, "enable debug output")
 	flConfigPath = flag.String("config", "config.cfg", "Path to config file")
-	cfg          Config
+	cfg          config
 	version      string
 )
 
-// Application Config
-type Config struct {
+// Application config
+type config struct {
 	Server   app.HttpConfig
 	Database *pg.Options
 }
@@ -36,9 +36,7 @@ func main() {
 	}
 
 	dbc := pg.Connect(cfg.Database)
-	db := db.New(dbc)
-
-	v, err := db.Version()
+	v, err := db.New(dbc).Version()
 	die(err)
 	log.Println(v)
 
