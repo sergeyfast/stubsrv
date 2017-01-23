@@ -16,6 +16,7 @@ type HttpConfig struct {
 	Port int
 }
 
+// App is application with all dependencies.
 type App struct {
 	appName string
 	hc      HttpConfig
@@ -28,7 +29,8 @@ type App struct {
 	statTotalHits *prometheus.CounterVec
 }
 
-func (a *App) registerStat() {
+// registerStats is a function that initializes a.stat* variables and adds /metrics endpoint to echo.
+func (a *App) registerStats() {
 	a.statTotalHits = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: a.appName,
 		Subsystem: "sample",
@@ -37,9 +39,11 @@ func (a *App) registerStat() {
 	}, nil)
 
 	prometheus.MustRegister(a.statTotalHits)
+
 	a.echo.Any("/metrics", echo.WrapHandler(promhttp.Handler()))
 }
 
+// New is a function that returns new application instance.
 func New(appName string, verbose bool, hc HttpConfig, dbc *pg.DB) *App {
 	a := &App{
 		appName: appName,
@@ -57,21 +61,25 @@ func New(appName string, verbose bool, hc HttpConfig, dbc *pg.DB) *App {
 	return a
 }
 
+// Printf prints message to Stdout (app.log variable) if a.verbose is set.
 func (a *App) Printf(format string, v ...interface{}) {
 	if a.log != nil {
 		a.log.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 
+// Errorf prints message to Stderr (app.wan variable).
 func (a *App) Errorf(format string, v ...interface{}) {
 	if a.warn != nil {
 		a.warn.Output(2, fmt.Sprintf(format, v...))
 	}
 }
 
+// Run is a function that runs application.
 func (a *App) Run() error {
 	// go a.process1()
-	a.registerStat()
+	a.registerStats()
+	a.registerHttpHandlers()
 
 	return a.runHttpHandler(a.hc.Host, a.hc.Port)
 }

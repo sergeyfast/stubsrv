@@ -38,16 +38,15 @@ func main() {
 	dbc := pg.Connect(cfg.Database)
 	db := db.New(dbc)
 
-	if v, err := db.Version(); err != nil {
-		die(err)
-	} else {
-		log.Println(v)
-	}
+	v, err := db.Version()
+	die(err)
+	log.Println(v)
 
 	a := app.New(appName, *flVerbose, cfg.Server, dbc)
 	die(a.Run())
 }
 
+// fixStdLog sets additional params to std logger (prefix D, filename & line).
 func fixStdLog(verbose bool) {
 	if verbose {
 		log.SetPrefix("D")
@@ -58,6 +57,7 @@ func fixStdLog(verbose bool) {
 	}
 }
 
+// die calls log.Fatal if err wasn't nil.
 func die(err error) {
 	if err != nil {
 		log.Fatal(err)
