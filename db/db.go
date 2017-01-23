@@ -81,16 +81,19 @@ ORDER BY wastedbytes DESC`)
 		return
 	}
 
-	// collapse tables
+	// collapse by tables
 	var (
 		key, oldKey string
 		t           *BloatedTable
 	)
 
-	for _, v := range info {
+	for i, v := range info {
 		key = v.Database + v.Schema + v.Table
 		if key != oldKey {
-			list = append(list, t)
+			if i > 0 {
+				list = append(list, t)
+			}
+
 			t = v.BloatedTable
 			oldKey = key
 		}

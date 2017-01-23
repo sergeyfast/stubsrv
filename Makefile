@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 PATH := bin:$(PATH)
 MAIN := main.go
-PKG := $(go list ./... | grep -v /vendor/)
+PKG := `go list ./... | grep -v /vendor/`
 
 ifeq ($(RACE),1)
 	GOFLAGS=-race
@@ -25,7 +25,7 @@ fmt:
 
 vet:
 	@go vet $(PKG)
-	@$(GOPATH)/bin/staticcheck
+	@$(GOPATH)/bin/staticcheck $(PKG)
 
 deps:
 	@$(GOPATH)/bin/trash
@@ -44,7 +44,7 @@ test:
 	@go test $(LDFLAGS) $(GOFLAGS) $(PKG)
 
 test-short:
-	@go test $(LDFLAGS) $(GOFLAGS) -v -test.short -test.run="Test[^D][^B]" $(PKG) -verbose
+	@go test $(LDFLAGS) $(GOFLAGS) -v -test.short -test.run="Test[^D][^B]" $(PKG)
 
 convey:
 	@$(GOPATH)/bin/goconvey
