@@ -18,10 +18,10 @@ func HTTPMetrics(appName string) echo.MiddlewareFunc {
 		Help:      "Requests count by method/path/status.",
 	}, labels)
 
-	echoDurations := prometheus.NewHistogramVec(prometheus.HistogramOpts{
+	echoDurations := prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace: appName,
 		Subsystem: "http",
-		Name:      "responses_histogram_seconds",
+		Name:      "responses_duration_seconds",
 		Help:      "Response time by method/path/status.",
 	}, labels)
 
