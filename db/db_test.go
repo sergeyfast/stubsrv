@@ -1,7 +1,8 @@
-package db
+package db_test
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/sergeyfast/stubsrv/db"
 	. "github.com/smartystreets/goconvey/convey"
 	"gopkg.in/pg.v5"
 	"log"
@@ -23,7 +24,7 @@ func TestMain(m *testing.M) {
 
 func TestDB(t *testing.T) {
 	Convey("Create database instance", t, func() {
-		db := New(pg.Connect(cfg.Database))
+		db := db.New(pg.Connect(cfg.Database))
 		Convey("Run 'select version()' query", func() {
 			v, err := db.Version()
 			So(err, ShouldBeNil)
