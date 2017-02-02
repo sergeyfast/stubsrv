@@ -34,6 +34,7 @@ func (a *App) registerHTTPHandlers() {
 	a.echo.GET("/sample-url", func(c echo.Context) error {
 		list, err := a.db.BloatedTables()
 		if err != nil {
+			a.Errorf("failed to fetch bloated tables from db, err=%v", err)
 			return c.HTML(http.StatusInternalServerError, err.Error())
 		}
 

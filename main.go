@@ -46,10 +46,11 @@ func main() {
 
 // fixStdLog sets additional params to std logger (prefix D, filename & line).
 func fixStdLog(verbose bool) {
+	log.SetPrefix("D")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	if verbose {
-		log.SetPrefix("D")
 		log.SetOutput(os.Stdout)
-		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	} else {
 		log.SetOutput(ioutil.Discard)
 	}
@@ -58,6 +59,7 @@ func fixStdLog(verbose bool) {
 // die calls log.Fatal if err wasn't nil.
 func die(err error) {
 	if err != nil {
+		log.SetOutput(os.Stderr)
 		log.Fatal(err)
 	}
 }
