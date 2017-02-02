@@ -27,6 +27,7 @@ This sample app was created as proof-of-concept template for new `services`. It 
 * `make tools` installs goconvey, trash and staticcheck into your `GOPATH`
 * `make fix` runs `go get .`
 * `make vet` runs `go vet` and `staticcheck`
+* `make fmt` runs `gofmt`
 * `make deps` runs `trash` for vendor.conf (don't forget to specify correct versions of libraries)
 * `make build` or `make rebuild` builds or rebuilds your app
 * `make run` runs app in verbose mode with default `config.cfg`
