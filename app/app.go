@@ -26,20 +26,21 @@ type App struct {
 	echo      *echo.Echo
 	warn, log *log.Logger
 
-	statTotalHits *prometheus.CounterVec
+	statLogEvents *prometheus.CounterVec
 }
 
-// registerStats is a function that initializes a.stat* variables and adds /metrics endpoint to echo.
-func (a *App) registerStats() {
-	a.statTotalHits = prometheus.NewCounterVec(prometheus.CounterOpts{
+// registerMetrics is a function that initializes a.stat* variables and adds /metrics endpoint to echo.
+func (a *App) registerMetrics() {
+	a.statLogEvents = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: a.appName,
-		Subsystem: "sample",
-		Name:      "hits_count",
-		Help:      "Total sample hits.",
-	}, nil)
+		Subsystem: "log",
+		Name:      "events_count",
+		Help:      "Log events distributions.",
+	}, []string{"type"})
 
-	prometheus.MustRegister(a.statTotalHits)
+	prometheus.MustRegister(a.statLogEvents)
 
+	a.echo.Use(HTTPMetrics(a.appName))
 	a.echo.Any("/metrics", echo.WrapHandler(promhttp.Handler()))
 }
 
@@ -63,6 +64,10 @@ func New(appName string, verbose bool, hc HttpConfig, dbc *pg.DB) *App {
 
 // Printf prints message to Stdout (app.log variable) if a.verbose is set.
 func (a *App) Printf(format string, v ...interface{}) {
+	if a.statLogEvents != nil {
+		a.statLogEvents.WithLabelValues("debug").Inc()
+	}
+
 	if a.log != nil {
 		a.log.Output(2, fmt.Sprintf(format, v...))
 	}
@@ -70,6 +75,10 @@ func (a *App) Printf(format string, v ...interface{}) {
 
 // Errorf prints message to Stderr (app.wan variable).
 func (a *App) Errorf(format string, v ...interface{}) {
+	if a.statLogEvents != nil {
+		a.statLogEvents.WithLabelValues("error").Inc()
+	}
+
 	if a.warn != nil {
 		a.warn.Output(2, fmt.Sprintf(format, v...))
 	}
@@ -78,8 +87,9 @@ func (a *App) Errorf(format string, v ...interface{}) {
 // Run is a function that runs application.
 func (a *App) Run() error {
 	// go a.process1()
-	a.registerStats()
-	a.registerHttpHandlers()
+	a.registerMetrics()
+	a.registerHTTPHandlers()
+	a.registerDebugHandlers()
 
-	return a.runHttpHandler(a.hc.Host, a.hc.Port)
+	return a.runHTTPServer(a.hc.Host, a.hc.Port)
 }
